@@ -5,7 +5,6 @@ import urllib.parse
 import json
 import configparser
 import re
-import lxml
 from bs4 import BeautifulSoup
 
 COOKIE = ""
