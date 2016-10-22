@@ -188,8 +188,11 @@ def get_programs_update_ed2k():
 
 if __name__ == "__main__":
 
-    user = ""
-    password = ""
+    login_config = configparser.ConfigParser()
+    login_config.read("login.ini")
+
+    user = login_config.get("LoginInfo", "user")
+    password = login_config.get("LoginInfo", "password")
 
     build_opener()
     status = login(user, password)
