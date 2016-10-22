@@ -42,6 +42,11 @@ def login(user, password):
 
 
 def get_user_info():
+    '''
+    获取用户信息
+    :return:
+        用户信息的json数据
+    '''
 
     get_user_info_url = "http://www.zimuzu.tv/user/login/getCurUserTopInfo"
 
@@ -53,6 +58,11 @@ def get_user_info():
     return data
 
 def get_user_favor():
+    '''
+    用正则表达式匹配出收藏列表中的电视剧信息
+    :return:
+        包含电视剧ID，电视剧名称的list
+    '''
 
     get_user_favor_url = "http://www.zimuzu.tv/user/fav"
 
@@ -66,6 +76,13 @@ def get_user_favor():
     return set
 
 def get_programs(pid):
+    '''
+    获取电视剧的最新中文字幕的HR-HDTV信息
+    :param pid:
+        电视剧ID
+    :return:
+        包含电视剧最新中文字幕HR-HDTV视频的时间戳，ed2k链接，名称的list
+    '''
 
     get_programs_url = "http://www.zimuzu.tv/resource/list_episode/" + pid
 
@@ -73,29 +90,29 @@ def get_programs(pid):
     response = urllib.request.urlopen(request)
     html = response.read().decode("utf-8")
 
-    #pattern = r'<div class="media-child-item" dateline="(.+)">\s*?<span class="fr">\s*<a href="(.*?)" type="ed2k"[\s\S]*?<strong>HR-HDTV</strong><a href="/resource/moreway/\d*?" target="_blank" class="lk">(.*?)</a><span class="f4">??'
-    #set = re.search(pattern, html)
-
     soup = BeautifulSoup(html, "lxml")
-    programs = soup.find_all("div", class_="media-child-item")
+    programs = soup.find_all("div", class_="media-child-item")              # 获取所有剧集的信息
 
     for p in programs:
-        if p.strong.string == "HR-HDTV":
-            latest = p
+        if p.strong.string == "HR-HDTV":                                    # 挑选出所有HR-HDTV的信息
+            latest = p                                                      # 默认第一个HR-HDTV就是最新的剧集(要按照网页版面改动)
             break
 
     links = latest.find_all("a")
 
     set = list()
-    set.append(latest["dateline"])
+    set.append(latest["dateline"])                                          # 时间戳
     for l in links:
         if l.string == "电驴":
-            set.append(l["href"])
-    set.append(latest.find("a", class_="lk").string)
+            set.append(l["href"])                                           # ed2k链接
+    set.append(latest.find("a", class_="lk").string)                        # 名称
 
-    return set
+    return set                                                              # ["时间戳", "ed2k连接", "名称"]
 
 def update_config():
+    '''
+    初始化或更新收藏配置文件
+    '''
 
     favor = get_user_favor()
 
@@ -156,6 +173,9 @@ def update_config():
 
 
 def get_programs_update_ed2k():
+    '''
+    打印出最新剧集的ed2k下载链接
+    '''
 
     config = configparser.ConfigParser()
     config.read("config.ini")
