@@ -6,6 +6,7 @@ import json
 import configparser
 import re
 from bs4 import BeautifulSoup
+from email_constructor import Email
 
 COOKIE = ""
 COOKIE_PROCESSOR = ""
@@ -118,14 +119,14 @@ def update_config():
 
     config = configparser.ConfigParser()
 
-    if len(config.read("config.ini")) == 0 :
+    if len(config.read("favor.ini")) == 0 :
         config["UserInfo"] = {}
         config["UserInfo"]["IsFirstTimeUsing"] = "True"
         config.add_section("UserFavor")
-        with open("config.ini", "w") as configuration:
+        with open("favor.ini", "w") as configuration:
             config.write(configuration)
 
-    config.read("config.ini")
+    config.read("favor.ini")
 
     if config["UserInfo"].getboolean("IsFirstTimeUsing"):
         print("首次使用将更新收藏列表，从下次扫描开始提醒更新内容。")
@@ -141,7 +142,7 @@ def update_config():
 
         config.set("UserInfo", "IsFirstTimeUsing", "False")
 
-        with open("config.ini", "w") as configuration:
+        with open("favor.ini", "w") as configuration:
             config.write(configuration)
 
 
@@ -166,7 +167,7 @@ def update_config():
                 config.remove_option("UserFavor", o)
                 print("删除收藏配置：" + o)
 
-        with open("config.ini", "w") as configuration:
+        with open("favor.ini", "w") as configuration:
             config.write(configuration)
 
         print("差异对比完成，配置已保存。")
@@ -174,13 +175,14 @@ def update_config():
 
 def get_programs_update_ed2k():
     '''
-    打印出最新剧集的ed2k下载链接
+    打印出和返回最新剧集的ed2k下载链接
     '''
 
     config = configparser.ConfigParser()
-    config.read("config.ini")
+    config.read("favor.ini")
 
     update_flag = False
+    msg = str()
 
     print("开始查询是否有更新剧集。")
 
@@ -192,14 +194,17 @@ def get_programs_update_ed2k():
             print("更新：" + set[2])
             print("电驴链接：" + set[1])
             config.set("UserFavor", p, set[0])
+            msg += "更新：%s\n电驴链接：%s\n\n" % (set[2], set[1])
 
     if update_flag:
-        with open("config.ini", "w") as configuration:
+        with open("favor.ini", "w") as configuration:
             config.write(configuration)
         print("配置文件已更新。")
+        return msg
 
     else:
         print("没有更新。")
+        return "没有更新。"
 
 
 
@@ -208,7 +213,7 @@ def get_programs_update_ed2k():
 if __name__ == "__main__":
 
     login_config = configparser.ConfigParser()
-    login_config.read("login.ini")
+    login_config.read("user.ini")
 
     user = login_config.get("LoginInfo", "user")
     password = login_config.get("LoginInfo", "password")
@@ -226,7 +231,11 @@ if __name__ == "__main__":
     print("你已登录" + str(user_data["data"]["usercount"]["cont_login"]) + "天，再登录" + str(user_data["data"]["upgrade_day"]) + "天即可升级到下一等级！")
 
     update_config()
-    get_programs_update_ed2k()
+    msg = get_programs_update_ed2k()
+
+    #发送邮件提示
+    email = Email(msg)
+    email.send();
 
     print("运行结束。")
 
