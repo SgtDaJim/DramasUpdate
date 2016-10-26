@@ -29,7 +29,7 @@ windows用户在安装lxml可能会因为缺少C语言库报错<br>
             to=充当收件者的邮箱
             authorization=发送者邮箱的smtp授权码
             smtp_server=发送者邮箱的smtp服务器
-            smtp_server=smtp服务器端口
+            smtp_port=smtp服务器端口
     5. 使用python3.x运行DramasUpdate.py。
     6. Enjoy.
     
