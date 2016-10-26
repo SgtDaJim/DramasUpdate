@@ -13,8 +13,8 @@ windows用户在安装lxml可能会因为缺少C语言库报错<br>
 可以选择到[Unofficial Windows Binaries for Python Extension Packages](http://www.lfd.uci.edu/~gohlke/pythonlibs/)下载whl文件
 例如：<br>
 使用python3.5版本<br>
-则下载lxml-3.6.4-cp35-cp35m-win_amd64.whl
-然后<BR>
+则下载lxml-3.6.4-cp35-cp35m-win_amd64.whl<br>
+然后<br>
 
     pip install wheel
     pip install f:\lxml-3.6.4-cp35-cp35m-win_amd64.whl (你lxml的whl文件的存放目录)
