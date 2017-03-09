@@ -20,7 +20,7 @@ windows用户在安装lxml可能会因为缺少C语言库报错<br>
     pip install f:\lxml-3.6.4-cp35-cp35m-win_amd64.whl (你lxml的whl文件的存放目录)
 ## 用法
     1. 安装依赖。
-    2. notepad打开login.ini。
+    2. notepad打开user.ini。
     3. 在LoginInfo项中，
             user=人人字幕组网站帐号
             password=密码
