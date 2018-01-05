@@ -6,6 +6,9 @@ import json
 import configparser
 from bs4 import BeautifulSoup
 from email_constructor import Email
+import pickle
+import feedparser
+import os
 
 
 class Zimuzu(object):
@@ -73,12 +76,51 @@ class Zimuzu(object):
     def get_update(self):
         url = "http://diaodiaode.me/rss/feed/"
         ids = self.get_user_favor()
+        msg = ""
 
-        for i in ids:
-            
+        if not os.path.exists("fav_record"):  # 首次运行或记录被清除。
+            os.mkdir("fav_record")
+            os.chdir("fav_record")
+            for id in ids:
+                rss_url = url + id
+                d = feedparser.parse(rss_url)
+                item_set = set(d.entries)
+                item_set = filter(lambda x: x.title.find("中英字幕") != -1, item_set)
+                link_set = set([i.link for i in item_set])
+                link_set.pop()
+                with open(id, "wb") as f:
+                    pickle.dump(link_set, f)
 
-        
+        else:
+            os.chdir("fav_record")
+            for id in ids:
+                rss_url = url + id
+                d = feedparser.parse(rss_url)
+                item_set = set(d.entries)
+                item_set = set(filter(lambda x: x.title.find("中英字幕") != -1, item_set))
+                link_set = set([i.link for i in item_set])
+                title = d.feed.title
+                with open(id, "rb") as f:
+                    old_link_set = pickle.load(f)
+                update = link_set - (old_link_set & link_set)
+                download_link = ""
 
+                if len(update) == 0:
+                    print(title + "no update.")
+                    continue
+                else:
+                    for i in item_set:
+                        for u in update:
+                            if i.link == u:
+                                try:
+                                    download_link += i.magnet + '\n'
+                                except Exception:
+                                    download_link += i.ed2k + '\n'
+                                break
+                    with open(id, "wb") as f:
+                        pickle.dump(link_set, f)
+                msg += title + '\n' + download_link + '\n'
+        print(msg)
 
 
 if __name__ == "__main__":
