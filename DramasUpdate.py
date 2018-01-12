@@ -79,6 +79,7 @@ class Zimuzu(object):
         msg = ""
 
         if not os.path.exists("fav_record"):  # 首次运行或记录被清除。
+            print("首次运行，更新收藏列表。")
             os.mkdir("fav_record")
             os.chdir("fav_record")
             for id in ids:
@@ -120,7 +121,30 @@ class Zimuzu(object):
                     with open(id, "wb") as f:
                         pickle.dump(link_set, f)
                 msg += title + '\n' + download_link + '\n'
-        print(msg)
+        # print(msg)
+        return msg
+
+    def logout(self):
+        logout_url = self.url + "/user/logout/ajaxLogout"
+
+        headers = {
+            'accept': "application/json, text/javascript, */*; q=0.01",
+            'origin': "http://www.zimuzu.tv",
+            'x-requested-with': "XMLHttpRequest",
+            'user-agent': "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36",
+            'referer': "http://www.zimuzu.tv/",
+            'accept-language': "zh-CN,zh;q=0.8,en;q=0.6",
+        }
+
+        request = urllib.request.Request(logout_url, headers=headers)
+        responce = urllib.request.urlopen(request)
+        data = responce.read().decode("utf-8")
+
+        data = json.loads(data)
+        if data["status"] == 1:
+            print("登出成功。")
+        else:
+            print("登出失败。")
 
 
 if __name__ == "__main__":
@@ -131,5 +155,7 @@ if __name__ == "__main__":
 
     zimuzu_api = Zimuzu(user, password)
     zimuzu_api.login()
-    zimuzu_api.get_user_favor()
-    zimuzu_api.get_update()
+    data = zimuzu_api.get_update()
+    print(data)
+    zimuzu_api.logout()
+
